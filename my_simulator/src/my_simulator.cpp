@@ -9,7 +9,8 @@ MySimulator::MySimulator()
 {
     L_ = 2.5; // Distancia entre los ejes de 2.5 metros.
 
-    // Inicializamos el suscriptor
+    // Inicializamos reloj y el suscriptor
+    last_msg_time_ = this->now();
     control_sub_ = this->create_subscription<my_simulator::msg::Control>(
       "/car_control", 10, std::bind(&MySimulator::control_callback, this, std::placeholders::_1)
     );
@@ -29,6 +30,7 @@ void MySimulator::control_callback(const my_simulator::msg::Control::SharedPtr m
 {
   acc_ = msg->acc;
   delta_ = msg->delta;
+  last_msg_time_ = this->now();
 }
 
 // Calcular físicas
@@ -36,7 +38,31 @@ void MySimulator::update_physics()
 {
   double dt = 0.1;
 
+  // Vemos ultimo input para aplicar friccion
+  auto current_time = this->now();
+  double time_diff = (current_time - last_msg_time_).seconds();
+
+  if (time_diff > 1.0) {
+    acc_ = 0.0;
+    delta_ = 0.0; 
+  }
+
   v_ += acc_*dt;
+
+  if (acc_ == 0.0) {
+    // Coeficiente de rozamiento
+    double friction = 1.0 * dt; 
+
+    if (v_ > 0) {
+      v_ -= friction;
+      if (v_ < 0) v_ = 0;  // Restamos velocidad hasta llegar a cero
+    } 
+    else if (v_ < 0) {
+      v_ += friction;
+      if (v_ > 0) v_ = 0;  // Sumamos velocidad si vamos hacia atras hasta llegar a cero
+    }
+  }
+  
   x_ += (v_ * cos(yaw_))*dt;
   y_ += (v_ * sin(yaw_))*dt;
   yaw_ += (v_ / L_) * tan(delta_)*dt;

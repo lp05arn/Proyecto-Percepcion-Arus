@@ -27,6 +27,9 @@ private:
     double acc_;    // Aceleracion
     double delta_;  // Ángulo volante
 
+    // Para saber cuando dejo de recibir inputs y desacelerar
+    rclcpp::Time last_msg_time_;
+
     rclcpp::TimerBase::SharedPtr timer_;
 
     // Suscriptor
