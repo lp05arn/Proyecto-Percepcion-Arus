@@ -10,6 +10,9 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Control.msg"
@@ -29,7 +32,13 @@ ament_target_dependencies(my_simulator_node
   rclcpp
   geometry_msgs
   rosidl_default_runtime
+  tf2
+  tf2_ros
+  tf2_geometry_msgs
 )
+
+rosidl_target_interfaces(my_simulator_node
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 # Instalar el ejecutable y carpetas necesarias
 install(TARGETS
