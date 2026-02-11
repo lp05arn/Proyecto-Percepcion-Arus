@@ -10,12 +10,17 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Control.msg"
+  "msg/Cone.msg"
+  "msg/ConeArray.msg"
+  DEPENDENCIES std_msgs
 )
 
 # Incluir directorios (donde está el .hpp)
@@ -31,6 +36,8 @@ add_executable(my_simulator_node
 ament_target_dependencies(my_simulator_node
   rclcpp
   geometry_msgs
+  std_msgs
+  visualization_msgs
   rosidl_default_runtime
   tf2
   tf2_ros
@@ -48,6 +55,14 @@ install(TARGETS
 
 install(DIRECTORY include/
   DESTINATION include
+)
+
+install(DIRECTORY msg
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(DIRECTORY tracks
+  DESTINATION share/${PROJECT_NAME}
 )
 
 ament_package()
